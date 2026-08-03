@@ -194,10 +194,7 @@ def main():
     )
 
     today = date.today().strftime("%B %-d, %Y") if sys.platform != "win32" else date.today().strftime("%B %#d, %Y")
-    badge_text = (
-        f"Updated {today} &middot; live ADP from {meta['total_drafts']} PPR drafts "
-        f"({meta['start_date']} to {meta['end_date']})"
-    )
+    badge_text = f"Updated {today} &middot; Live ADP"
     html_text = re.sub(
         r'<span class="badge">.*?</span>',
         f'<span class="badge">{badge_text}</span>',
