@@ -397,6 +397,64 @@
     .toolbar .count { margin-left: 0; width: 100%; }
     header.top .inner { flex-direction: column; align-items: flex-start; }
   }
+
+  /* Card layout for narrow screens - each player becomes a stacked card
+     instead of a table row. Desktop keeps the table above this breakpoint. */
+  @media (max-width: 680px) {
+    .table-wrap {
+      overflow: visible;
+      border: none;
+      box-shadow: none;
+      background: transparent;
+    }
+    table { display: block; width: 100%; min-width: 0; font-size: 0.88rem; }
+    thead { display: none; }
+    tbody { display: block; }
+
+    tbody tr {
+      display: grid;
+      grid-template-columns: auto auto 1fr;
+      grid-template-areas:
+        "drafted pos    depth"
+        "player  player rating"
+        "reason  reason reason";
+      align-items: center;
+      column-gap: 10px;
+      row-gap: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      box-shadow: var(--shadow);
+    }
+    tbody tr:last-child { margin-bottom: 0; }
+    tbody tr:hover { background: var(--surface); }
+    tbody td { display: block; padding: 0; vertical-align: baseline; }
+
+    td.drafted-col { grid-area: drafted; }
+    td.drafted-col input { width: 20px; height: 20px; }
+    td.pos-col { grid-area: pos; }
+    td.depth {
+      grid-area: depth;
+      text-align: right;
+      font-size: 0.76rem;
+    }
+    td.player {
+      grid-area: player;
+      white-space: normal;
+      font-size: 1rem;
+      align-self: start;
+    }
+    td.rating-col { grid-area: rating; justify-self: end; align-self: start; }
+    td.reasoning {
+      grid-area: reason;
+      font-size: 0.85rem;
+      margin-top: 2px;
+    }
+
+    .empty-state { padding: 28px 16px; }
+  }
 </style>
 </head>
 <body>
@@ -950,10 +1008,10 @@ function render() {
     const pct = Math.max(0, Math.min(100, (row.rating / 10) * 100));
     tr.innerHTML = `
       <td class="drafted-col"><input type="checkbox" class="drafted-check" ${isDrafted ? "checked" : ""} aria-label="Mark ${row.player} as drafted"></td>
-      <td><span class="pos-tag pos-${row.position}" title="${POSITION_NAMES[row.position]}">${row.position}</span></td>
+      <td class="pos-col"><span class="pos-tag pos-${row.position}" title="${POSITION_NAMES[row.position]}">${row.position}</span></td>
       <td class="depth">${ordinal(row.depth)} choice</td>
       <td class="player">${row.player}${row.team ? ` <span style="color:var(--text-muted);font-weight:400;">(${row.team})</span>` : ""}</td>
-      <td><span class="rating">${row.rating.toFixed(1)}<span class="rating-bar"><span style="width:${pct}%"></span></span></span></td>
+      <td class="rating-col"><span class="rating">${row.rating.toFixed(1)}<span class="rating-bar"><span style="width:${pct}%"></span></span></span></td>
       <td class="reasoning">${row.reasoning}</td>
     `;
     tr.querySelector(".drafted-check").addEventListener("change", (e) => {
