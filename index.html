@@ -1,0 +1,977 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 Fantasy Football Draft Board</title>
+<style>
+  :root {
+    --bg: #f4f5f7;
+    --surface: #ffffff;
+    --border: #dfe3e8;
+    --text: #1c2430;
+    --text-muted: #5b6470;
+    --accent: #1d6f42;
+    --accent-soft: #e6f2ec;
+    --header-bg: #16233a;
+    --header-text: #f2f5f8;
+    --row-hover: #f0f7f3;
+    --shadow: 0 1px 2px rgba(16,24,40,0.06), 0 1px 3px rgba(16,24,40,0.08);
+    --qb: #c0392b;
+    --rb: #1d6f42;
+    --wr: #1f6feb;
+    --te: #8e44ad;
+    --flex: #b7791f;
+    --k: #0e7490;
+    --dst: #52606d;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1420;
+      --surface: #161d2b;
+      --border: #2a3346;
+      --text: #e7ecf3;
+      --text-muted: #9aa5b5;
+      --accent: #4fd18b;
+      --accent-soft: #1a2b23;
+      --header-bg: #10182a;
+      --header-text: #eef2f8;
+      --row-hover: #1c2636;
+      --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 1px 3px rgba(0,0,0,0.5);
+      --qb: #f0705f;
+      --rb: #4fd18b;
+      --wr: #6ea8fe;
+      --te: #c58cea;
+      --flex: #e0ac4c;
+      --k: #4fd6e8;
+      --dst: #a7b2c2;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1420; --surface: #161d2b; --border: #2a3346; --text: #e7ecf3; --text-muted: #9aa5b5;
+    --accent: #4fd18b; --accent-soft: #1a2b23; --header-bg: #10182a; --header-text: #eef2f8;
+    --row-hover: #1c2636; --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 1px 3px rgba(0,0,0,0.5);
+    --qb: #f0705f; --rb: #4fd18b; --wr: #6ea8fe; --te: #c58cea; --flex: #e0ac4c; --k: #4fd6e8; --dst: #a7b2c2;
+  }
+  :root[data-theme="light"] {
+    --bg: #f4f5f7; --surface: #ffffff; --border: #dfe3e8; --text: #1c2430; --text-muted: #5b6470;
+    --accent: #1d6f42; --accent-soft: #e6f2ec; --header-bg: #16233a; --header-text: #f2f5f8;
+    --row-hover: #f0f7f3; --shadow: 0 1px 2px rgba(16,24,40,0.06), 0 1px 3px rgba(16,24,40,0.08);
+    --qb: #c0392b; --rb: #1d6f42; --wr: #1f6feb; --te: #8e44ad; --flex: #b7791f; --k: #0e7490; --dst: #52606d;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 20px 60px;
+  }
+
+  header.top {
+    background: var(--header-bg);
+    color: var(--header-text);
+    padding: 26px 20px;
+    margin: -28px -20px 24px;
+  }
+  header.top .inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  header.top h1 {
+    margin: 0 0 4px;
+    font-size: 1.5rem;
+    letter-spacing: -0.01em;
+  }
+  header.top p {
+    margin: 0;
+    color: #b9c4d6;
+    font-size: 0.88rem;
+  }
+  header.top .badge {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 0.78rem;
+    color: var(--header-text);
+    white-space: nowrap;
+  }
+
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    box-shadow: var(--shadow);
+  }
+  .toolbar input[type="search"] {
+    flex: 1 1 240px;
+    min-width: 180px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 0.92rem;
+  }
+  .toolbar input[type="search"]:focus,
+  .toolbar select:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+  .toolbar select {
+    padding: 9px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 0.9rem;
+  }
+  .toolbar .pos-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .pos-chip {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.08s ease;
+  }
+  .pos-chip:hover { transform: translateY(-1px); }
+  .pos-chip.active {
+    background: var(--accent-soft);
+    color: var(--text);
+    border-color: var(--accent);
+  }
+  .toolbar .count {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-left: auto;
+    white-space: nowrap;
+  }
+  .toolbar .reset {
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    cursor: pointer;
+  }
+  .toolbar .reset:hover { color: var(--text); border-color: var(--accent); }
+  .toolbar .hide-drafted {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    user-select: none;
+  }
+  .toolbar .hide-drafted input { cursor: pointer; }
+  .toolbar .clear-drafted {
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    cursor: pointer;
+  }
+  .toolbar .clear-drafted:hover { color: #c0392b; border-color: #c0392b; }
+
+  .legend {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+  .legend .legend-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+  .legend-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 10px 16px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 0.85rem;
+  }
+  .legend-item .legend-tag {
+    flex: 0 0 auto;
+  }
+  .legend-item .legend-text strong {
+    display: block;
+    color: var(--text);
+    font-size: 0.85rem;
+  }
+  .legend-item .legend-text span {
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    line-height: 1.35;
+  }
+
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: auto;
+    box-shadow: var(--shadow);
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 780px;
+    font-size: 0.9rem;
+  }
+  thead th {
+    position: sticky;
+    top: 0;
+    background: var(--header-bg);
+    color: var(--header-text);
+    text-align: left;
+    padding: 12px 14px;
+    font-weight: 600;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    white-space: nowrap;
+    user-select: none;
+    z-index: 2;
+  }
+  thead th .arrow { margin-left: 4px; opacity: 0.5; font-size: 0.7em; }
+  thead th.sorted .arrow { opacity: 1; }
+  thead th:hover { background: #1e2c47; }
+
+  tbody tr {
+    border-top: 1px solid var(--border);
+    transition: background 0.1s ease;
+  }
+  tbody tr:hover { background: var(--row-hover); }
+  tbody td {
+    padding: 12px 14px;
+    vertical-align: top;
+  }
+  td.reasoning {
+    color: var(--text-muted);
+    max-width: 420px;
+    line-height: 1.45;
+  }
+  td.player { font-weight: 600; white-space: nowrap; }
+  td.depth { color: var(--text-muted); white-space: nowrap; }
+  td.drafted-col { text-align: center; width: 1%; }
+  td.drafted-col input { width: 16px; height: 16px; cursor: pointer; }
+
+  tbody tr.drafted-row { opacity: 0.45; }
+  tbody tr.drafted-row td.player { text-decoration: line-through; }
+  tbody tr.drafted-row:hover { background: transparent; }
+
+  .pos-tag {
+    display: inline-block;
+    min-width: 42px;
+    text-align: center;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: #fff;
+  }
+  .pos-QB   { background: var(--qb); }
+  .pos-RB   { background: var(--rb); }
+  .pos-WR   { background: var(--wr); }
+  .pos-TE   { background: var(--te); }
+  .pos-FLEX { background: var(--flex); }
+  .pos-K    { background: var(--k); }
+  .pos-DST  { background: var(--dst); }
+
+  .rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+  }
+  .rating-bar {
+    width: 46px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--border);
+    overflow: hidden;
+    flex: 0 0 auto;
+  }
+  .rating-bar span {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+  }
+
+  .empty-state {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--text-muted);
+  }
+
+  footer.notes {
+    margin-top: 22px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.55;
+    box-shadow: var(--shadow);
+  }
+  footer.notes strong { color: var(--text); }
+  footer.notes ul { margin: 8px 0 0; padding-left: 18px; }
+  footer.notes h2 {
+    margin: 0 0 10px;
+    font-size: 1.05rem;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  footer.notes .strategy-item {
+    margin-bottom: 14px;
+  }
+  footer.notes .strategy-item:last-child { margin-bottom: 0; }
+  footer.notes .strategy-item h3 {
+    margin: 0 0 3px;
+    font-size: 0.88rem;
+    color: var(--text);
+  }
+  footer.notes .strategy-item p {
+    margin: 0;
+  }
+  footer.notes .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 18px 0;
+  }
+  footer.notes .notes-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  @media (max-width: 640px) {
+    .toolbar .count { margin-left: 0; width: 100%; }
+    header.top .inner { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="top">
+    <div class="inner">
+      <div>
+        <h1>2026 Fantasy Football Draft Board</h1>
+        <p>Private family league &middot; standard ESPN / Yahoo / Sleeper roster slots</p>
+      </div>
+      <span class="badge">Updated August 3, 2026 &middot; live ADP from 4299 PPR drafts (2026-07-27 to 2026-08-03)</span>
+    </div>
+  </header>
+
+  <div class="legend">
+    <div class="legend-title">Position Legend &mdash; what the abbreviations mean</div>
+    <div class="legend-grid">
+      <div class="legend-item">
+        <span class="pos-tag pos-QB legend-tag">QB</span>
+        <div class="legend-text"><strong>Quarterback</strong><span>Throws (and sometimes runs) the ball; the offense's play-caller on the field.</span></div>
+      </div>
+      <div class="legend-item">
+        <span class="pos-tag pos-RB legend-tag">RB</span>
+        <div class="legend-text"><strong>Running Back</strong><span>Primarily carries the ball on rushing plays; also catches passes out of the backfield.</span></div>
+      </div>
+      <div class="legend-item">
+        <span class="pos-tag pos-WR legend-tag">WR</span>
+        <div class="legend-text"><strong>Wide Receiver</strong><span>Lines up out wide and catches passes down the field.</span></div>
+      </div>
+      <div class="legend-item">
+        <span class="pos-tag pos-TE legend-tag">TE</span>
+        <div class="legend-text"><strong>Tight End</strong><span>Lines up near the offensive line; catches passes like a receiver and blocks like a lineman.</span></div>
+      </div>
+      <div class="legend-item">
+        <span class="pos-tag pos-FLEX legend-tag">FLEX</span>
+        <div class="legend-text"><strong>Flex</strong><span>A roster spot that can be filled by any RB, WR, or TE &mdash; whichever you have left over.</span></div>
+      </div>
+      <div class="legend-item">
+        <span class="pos-tag pos-K legend-tag">K</span>
+        <div class="legend-text"><strong>Kicker</strong><span>Scores points by kicking field goals and extra points after touchdowns.</span></div>
+      </div>
+      <div class="legend-item">
+        <span class="pos-tag pos-DST legend-tag">DST</span>
+        <div class="legend-text"><strong>Defense / Special Teams</strong><span>You draft an entire team's defense as one unit &mdash; it scores on sacks, turnovers, and points allowed, not individual players.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <input type="search" id="searchBox" placeholder="Search player, team, or reasoning..." autocomplete="off">
+    <div class="pos-filters" id="posFilters"></div>
+    <select id="sortSelect" title="Sort by">
+      <option value="pos-asc">Sort: Position (draft order)</option>
+      <option value="rating-desc">Sort: Rating (high to low)</option>
+      <option value="rating-asc">Sort: Rating (low to high)</option>
+      <option value="player-asc">Sort: Player (A-Z)</option>
+      <option value="depth-asc">Sort: Depth (1st choice first)</option>
+    </select>
+    <button class="reset" id="resetBtn">Reset filters</button>
+    <label class="hide-drafted">
+      <input type="checkbox" id="hideDraftedBox">
+      Hide drafted
+    </label>
+    <button class="clear-drafted" id="clearDraftedBtn">Clear drafted marks</button>
+    <span class="count" id="resultCount"></span>
+  </div>
+
+  <div class="table-wrap">
+    <table id="draftTable">
+      <thead>
+        <tr>
+          <th class="drafted-col" title="Mark drafted">Drafted</th>
+          <th data-key="position">Position <span class="arrow">&#8597;</span></th>
+          <th data-key="depth">Choice <span class="arrow">&#8597;</span></th>
+          <th data-key="player">Player <span class="arrow">&#8597;</span></th>
+          <th data-key="rating">Rating <span class="arrow">&#8597;</span></th>
+          <th data-key="reasoning">Reasoning</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+    <div class="empty-state" id="emptyState" style="display:none;">No players match your search or filters.</div>
+  </div>
+
+  <footer class="notes">
+    <h2>Drafting Strategies</h2>
+
+    <div class="strategy-item">
+      <h3>Is this board enough to get through a whole draft now?</h3>
+      <p>Much closer than before. A typical draft has 10&ndash;12 teams, and each team fills a roster of roughly 15&ndash;16 total spots (starters, plus a bench of 6&ndash;9, plus often an IR spot) &mdash; <strong>150&ndash;190+ players</strong> get drafted across the whole room. This board now carries <strong>128 players</strong> (25 deep at RB and WR, 18 deep at QB and TE, 15 deep at FLEX and K, 12 deep at DST), so it should realistically cover you through most of a standard draft. The very last few picks of a deep league may still dip below this list, especially at RB/WR bench depth.</p>
+    </div>
+
+    <div class="strategy-item">
+      <h3>RB and WR still go the deepest</h3>
+      <p>Most teams need 2&ndash;3+ running backs and wide receivers each (starters, plus FLEX, plus bench depth), so those two positions get drafted the fastest. The RB and WR rows go 25 deep here specifically because of that &mdash; but if you somehow burn through all 25, you're in the very final rounds and any warm body at the position is a fine, low-stakes pick.</p>
+    </div>
+
+    <div class="strategy-item">
+      <h3>Don't reach for K or DST early</h3>
+      <p>Kicker and Defense/Special Teams are the one place where depth barely matters &mdash; the gap in scoring between the 5th-ranked kicker and the 15th-ranked kicker is small, and the same goes for defenses. Most experienced drafters wait until the very last round or two to grab these, so resist the urge to draft one "just in case" early on.</p>
+    </div>
+
+    <div class="strategy-item">
+      <h3>QB and TE can wait a bit too</h3>
+      <p>Unless an elite option (like the Tier 1 names at the top of those rows) falls unusually far, quarterback and tight end are generally considered "streaming" or "wait" positions in a standard league &mdash; there's a steep drop-off at the very top, then a long plateau of similar value. You can often land a solid starter several rounds later than you'd expect.</p>
+    </div>
+
+    <div class="strategy-item">
+      <h3>How to actually use this board on draft day</h3>
+      <p>Sort by <strong>Rating (high to low)</strong> before the draft starts to get a feel for the overall pecking order. During the draft, use the position filter chips to isolate whichever slot you need to fill next. As other teams draft a player &mdash; including ones you wanted &mdash; check the box in the <strong>Drafted</strong> column next to their name; the row grays out and gets crossed off so you always know who's actually still available. Turn on <strong>Hide drafted</strong> in the toolbar to shrink the list down to only real remaining options as the draft goes on. Your checkmarks are saved in this browser automatically, so refreshing the page won't lose your progress mid-draft &mdash; use <strong>Clear drafted marks</strong> once the draft is over (or before your next one) to reset the board. If your search box turns up nothing, that player likely isn't on this board at all &mdash; check a live source before passing.</p>
+    </div>
+
+    <hr class="divider">
+
+    <div class="notes-title">Board Notes</div>
+    <ul>
+      <li><strong>Rating</strong> is a 1&ndash;10 draft-value score (10 = elite/must-start, 1 = deep speculative flier), recalculated from each player's live ADP (Average Draft Position) rank within their row every time the board is refreshed.</li>
+      <li>This board reflects a <strong>standard</strong> league format (team DST, not individual defensive players/IDP) &mdash; confirm your league's settings before draft day in case it's different.</li>
+      <li><strong>Live data:</strong> order and ratings come from real-time, crowd-sourced PPR ADP data (12-team) via FantasyFootballCalculator's free public API, refreshed by a local script (<code>refresh_board.py</code>) on a daily schedule. The timestamp in the header badge shows exactly when this copy was last refreshed and how many live drafts it was built from.</li>
+      <li>Reasoning text is preserved from the original hand-written scouting notes for any player who was already on the board; a player who's newly climbed into a row gets a plain data note (their current ADP) instead of invented commentary, until a real note is written for them.</li>
+      <li>ADP shifts fast, especially close to the season &mdash; still re-check injury reports and depth charts the day of your draft.</li>
+    </ul>
+  </footer>
+
+</div>
+
+<script>
+const DATA = [
+  { position: "QB", depth: 1, player: "Josh Allen", team: "BUF", rating: 9.9,
+    reasoning: "Consensus QB1 for a 6th straight year; only QB to finish top-3 in FPPG in each of the last five seasons thanks to a massive rushing floor on top of elite passing volume." },
+  { position: "QB", depth: 2, player: "Drake Maye", team: "NE", rating: 9.5,
+    reasoning: "Broke out in Year 2 - only Allen outscored him in fantasy points in 2025 - and now has A.J. Brown added to an already-improving weapons room." },
+  { position: "QB", depth: 3, player: "Lamar Jackson", team: "BAL", rating: 9.1,
+    reasoning: "Two-time MVP with the highest rushing ceiling at the position; coming off an injury-shortened 2025, so there's real bounce-back upside if he stays on the field." },
+  { position: "QB", depth: 4, player: "Joe Burrow", team: "CIN", rating: 8.8,
+    reasoning: "Elite ceiling when on the field - one of the best pure passers in the league - but injury history is the main knock against a full-season QB1 investment." },
+  { position: "QB", depth: 5, player: "Dak Prescott", team: "DAL", rating: 8.4,
+    reasoning: "Steady, high-floor passer with Dallas's full complement of offensive weapons back and healthy after an injury-shortened prior season." },
+  { position: "QB", depth: 6, player: "Jayden Daniels", team: "WAS", rating: 8.0,
+    reasoning: "Dual-threat rushing floor gives him league-winning upside, but he's coming off a down, injury-affected 2025 that tempers expectations somewhat." },
+  { position: "QB", depth: 7, player: "Jalen Hurts", team: "PHI", rating: 7.6,
+    reasoning: "Rushing touchdown equity keeps his floor high regardless of passing volume; has finished top-7 in FPPG in each of the last five seasons." },
+  { position: "QB", depth: 8, player: "Brock Purdy", team: "SF", rating: 7.3,
+    reasoning: "Has finished among the top-10 QBs in fantasy points per game for three consecutive seasons in a well-designed, quarterback-friendly offense." },
+  { position: "QB", depth: 9, player: "Matthew Stafford", team: "LAR", rating: 6.9,
+    reasoning: "Has only finished top-10 at the position once since being traded to the Rams in 2021, but still a capable veteran passer in a good offense." },
+  { position: "QB", depth: 10, player: "Trevor Lawrence", team: "JAX", rating: 6.5,
+    reasoning: "Could provide top-10 production despite a fairly modest offseason for Jacksonville; more of a streaming/value QB2 play than a locked-in starter." },
+  { position: "QB", depth: 11, player: "Patrick Mahomes", team: "KC", rating: 6.1,
+    reasoning: "Former MVP returning from a torn ACL; being valued cautiously until he shows he's fully back to his old form." },
+  { position: "QB", depth: 12, player: "Jared Goff", team: "DET", rating: 5.8,
+    reasoning: "Plays behind one of the league's best offensive lines; capable of a top-10 finish if he stays protected all year." },
+  { position: "QB", depth: 13, player: "Caleb Williams", team: "CHI", rating: 5.4,
+    reasoning: "Talented, mobile passer entering Year 3 with real breakout equity as Chicago's offense and weapons continue to develop around him." },
+  { position: "QB", depth: 14, player: "Jaxson Dart", team: "NYG", rating: 5.0,
+    reasoning: "Was surprisingly productive as a rookie last year even during stretches without his top receiver on the field." },
+  { position: "QB", depth: 15, player: "Justin Herbert", team: "LAC", rating: 4.6,
+    reasoning: "Big arm talent in a new offensive scheme that could either unlock him or limit his fantasy ceiling depending on how the play-calling shakes out." },
+  { position: "QB", depth: 16, player: "Bo Nix", team: "DEN", rating: 4.3,
+    reasoning: "Should be a solid low-end starter if his ankle holds up, in an offense that's continued to develop around him." },
+  { position: "QB", depth: 17, player: "Baker Mayfield", team: "TB", rating: 3.9,
+    reasoning: "Currently going around pick 11.09 (ADP 129.2) across 180 live PPR drafts polled this week - no prior scouting note on file yet, so treat this as a data-only placeholder." },
+  { position: "QB", depth: 18, player: "Tyler Shough", team: "NO", rating: 3.5,
+    reasoning: "Currently going around pick 12.06 (ADP 137.9) across 179 live PPR drafts polled this week - no prior scouting note on file yet, so treat this as a data-only placeholder." },
+  { position: "RB", depth: 1, player: "Jahmyr Gibbs", team: "DET", rating: 9.9,
+    reasoning: "New consensus RB1; plays in a Lions offense projected to be one of the league's most potent, and Detroit has the easiest RB schedule in football this year." },
+  { position: "RB", depth: 2, player: "Bijan Robinson", team: "ATL", rating: 9.6,
+    reasoning: "Tyler Allgeier's departure clears the way for a true 3-down, goal-line workload - removes the last knock (red-zone carries) on an already elite receiving back." },
+  { position: "RB", depth: 3, player: "Christian McCaffrey", team: "SF", rating: 9.4,
+    reasoning: "Still elite when healthy and his receiving work provides a high PPR floor, but he turns 30 this season and durability is a legitimate year-over-year concern." },
+  { position: "RB", depth: 4, player: "Jonathan Taylor", team: "IND", rating: 9.1,
+    reasoning: "Pure No.1 fantasy RB talent and volume; the only drag on his ranking is uncertainty at Indianapolis's QB spot affecting game script." },
+  { position: "RB", depth: 5, player: "De'Von Achane", team: "MIA", rating: 8.8,
+    reasoning: "Explosive big-play ability as both a runner and receiver, even as Miami's offense continues adjusting its overall identity." },
+  { position: "RB", depth: 6, player: "Chase Brown", team: "CIN", rating: 8.6,
+    reasoning: "Emerged as Cincinnati's clear early-down and passing-down back last year; being drafted as a value relative to his real workload." },
+  { position: "RB", depth: 7, player: "Ashton Jeanty", team: "LV", rating: 8.3,
+    reasoning: "Rookie workhorse entering a Raiders offense whose new coaching staff has committed to a heavy, RB-centric ground game." },
+  { position: "RB", depth: 8, player: "James Cook III", team: "BUF", rating: 8.0,
+    reasoning: "Currently going around pick 2.03 (ADP 15.0) across 1050 live PPR drafts polled this week - no prior scouting note on file yet, so treat this as a data-only placeholder." },
+  { position: "RB", depth: 9, player: "Derrick Henry", team: "BAL", rating: 7.8,
+    reasoning: "Still a bruising, high-volume workhorse in Baltimore's run scheme, though age (32 this season) raises real durability questions." },
+  { position: "RB", depth: 10, player: "Saquon Barkley", team: "PHI", rating: 7.5,
+    reasoning: "Physical marvel who has defied typical age-decline patterns for running backs; still a bell-cow workload behind Philadelphia's strong offensive line." },
+  { position: "RB", depth: 11, player: "Omarion Hampton", team: "LAC", rating: 7.2,
+    reasoning: "Flashed a legitimate three-down role as a rookie; staying healthy is the main swing factor for a Year 2 breakout in the Chargers' backfield." },
+  { position: "RB", depth: 12, player: "Jeremiyah Love", team: "ARI", rating: 7.0,
+    reasoning: "Rookie expectations may be a bit inflated, but a reasonable RB2 value given his realistic path to touches." },
+  { position: "RB", depth: 13, player: "Josh Jacobs", team: "GB", rating: 6.7,
+    reasoning: "Has top-10 upside again if he plays a full season, though there are some off-field questions worth monitoring." },
+  { position: "RB", depth: 14, player: "Kenneth Walker III", team: "KC", rating: 6.4,
+    reasoning: "Plays in an Andy Reid offense that consistently maximizes running back scoring opportunities, especially near the goal line." },
+  { position: "RB", depth: 15, player: "Breece Hall", team: "NYJ", rating: 6.2,
+    reasoning: "Explosive receiving back who profiles as a high-floor PPR option even in a run-by-committee Jets backfield." },
+  { position: "RB", depth: 16, player: "Cam Skattebo", team: "NYG", rating: 5.9,
+    reasoning: "Showed real promise early before an ankle injury; recovery timeline is the main swing factor for his value." },
+  { position: "RB", depth: 17, player: "Kyren Williams", team: "LAR", rating: 5.6,
+    reasoning: "Unspectacular but reliable - a top-10 PPG running back for three consecutive seasons, which makes him an easy, low-variance RB2." },
+  { position: "RB", depth: 18, player: "Javonte Williams", team: "DAL", rating: 5.4,
+    reasoning: "Gets a fresh workload opportunity in Dallas after a change of scenery; touches should be there even if efficiency is unproven." },
+  { position: "RB", depth: 19, player: "Travis Etienne Jr.", team: "NO", rating: 5.1,
+    reasoning: "Currently going around pick 4.01 (ADP 36.6) across 266 live PPR drafts polled this week - no prior scouting note on file yet, so treat this as a data-only placeholder." },
+  { position: "RB", depth: 20, player: "Bucky Irving", team: "TB", rating: 4.8,
+    reasoning: "Running back with real talent, but injury history and goal-line competition cap his weekly ceiling somewhat." },
+  { position: "RB", depth: 21, player: "D'Andre Swift", team: "CHI", rating: 4.6,
+    reasoning: "Change-of-pace back whose fantasy value depends heavily on touch share within Chicago's backfield." },
+  { position: "RB", depth: 22, player: "Quinshon Judkins", team: "CLE", rating: 4.3,
+    reasoning: "Confidence restored after an injury absence, though the overall offensive outlook in Cleveland remains a concern." },
+  { position: "RB", depth: 23, player: "Bhayshul Tuten", team: "JAX", rating: 4.0,
+    reasoning: "Rookie with real athletic upside, but touches will depend on how Jacksonville's backfield pecking order shakes out." },
+  { position: "RB", depth: 24, player: "TreVeyon Henderson", team: "NE", rating: 3.8,
+    reasoning: "Talented rookie, but limited early touches and crowded backfield competition cap his immediate ceiling." },
+  { position: "RB", depth: 25, player: "David Montgomery", team: "HOU", rating: 3.5,
+    reasoning: "Veteran, touchdown-dependent early-down back; don't wait until this tier expecting a true bell-cow role." },
+  { position: "WR", depth: 1, player: "Puka Nacua", team: "LAR", rating: 9.9,
+    reasoning: "Last year's fantasy WR1 overall; offseason reports have him tracking ahead of schedule in his recovery, so the medical risk is lower than it looked in the spring." },
+  { position: "WR", depth: 2, player: "Ja'Marr Chase", team: "CIN", rating: 9.6,
+    reasoning: "Consensus WR1; has finished top-5 in FPPG in four of his five seasons and is the clear focal point of Cincinnati's passing game when Burrow is on the field." },
+  { position: "WR", depth: 3, player: "Jaxon Smith-Njigba", team: "SEA", rating: 9.4,
+    reasoning: "Led the NFL in receiving yards and finished as the fantasy WR2 in 2025 - a legitimate target-hog in Seattle's passing attack." },
+  { position: "WR", depth: 4, player: "Amon-Ra St. Brown", team: "DET", rating: 9.1,
+    reasoning: "The definition of consistency - the only WR to finish top-3 in fantasy points per game in each of the last three seasons." },
+  { position: "WR", depth: 5, player: "Drake London", team: "ATL", rating: 8.8,
+    reasoning: "Elite contested-catch talent whose fantasy production has been held back mainly by inconsistent quarterback play in Atlanta." },
+  { position: "WR", depth: 6, player: "CeeDee Lamb", team: "DAL", rating: 8.6,
+    reasoning: "Still delivered top-20 WR value in 2025 despite missing roughly 40% of snaps to injury; a full, healthy season puts him back in the WR1 conversation." },
+  { position: "WR", depth: 7, player: "Justin Jefferson", team: "MIN", rating: 8.3,
+    reasoning: "Talent-wise still a top-3 WR; ranked here only because his ceiling is capped by uncertainty at the Minnesota QB spot rather than anything about his own game." },
+  { position: "WR", depth: 8, player: "Rashee Rice", team: "KC", rating: 8.0,
+    reasoning: "Elite talent with true WR1 ceiling in Kansas City's passing game, but carries boom-or-bust risk in a contract year with some off-field uncertainty." },
+  { position: "WR", depth: 9, player: "A.J. Brown", team: "NE", rating: 7.8,
+    reasoning: "Elite, physical WR1 talent now catching passes from an ascending Drake Maye in an improving New England passing attack." },
+  { position: "WR", depth: 10, player: "Chris Olave", team: "NO", rating: 7.5,
+    reasoning: "Steady, high-target-share receiver in New Orleans; staying healthy across a full season is the main question mark." },
+  { position: "WR", depth: 11, player: "George Pickens", team: "DAL", rating: 7.2,
+    reasoning: "Showed a legitimate WR1 ceiling in a strong offense last year; repeating a top-4 WR finish is a tall order, but the talent is real." },
+  { position: "WR", depth: 12, player: "Nico Collins", team: "HOU", rating: 7.0,
+    reasoning: "A reliable, low-end WR1 despite some injury history; strong target share in a Houston offense that should move the ball well." },
+  { position: "WR", depth: 13, player: "Zay Flowers", team: "BAL", rating: 6.7,
+    reasoning: "Speedy field-stretcher in Baltimore's offense; touchdown upside is tied closely to Lamar Jackson's health and passing volume." },
+  { position: "WR", depth: 14, player: "Garrett Wilson", team: "NYJ", rating: 6.4,
+    reasoning: "Bounce-back candidate after knee issues limited him at times last year; has shown strong production in his healthy seasons." },
+  { position: "WR", depth: 15, player: "DeVonta Smith", team: "PHI", rating: 6.2,
+    reasoning: "Projected for a moderate target-share jump in Philadelphia following A.J. Brown's departure from the roster." },
+  { position: "WR", depth: 16, player: "Tetairoa McMillan", team: "CAR", rating: 5.9,
+    reasoning: "Talented young receiver continuing to build chemistry with his quarterback in Arizona's passing game." },
+  { position: "WR", depth: 17, player: "Emeka Egbuka", team: "TB", rating: 5.6,
+    reasoning: "Averaged nearly 18 fantasy points per game before a hamstring injury last year - health is the key variable here." },
+  { position: "WR", depth: 18, player: "Malik Nabers", team: "NYG", rating: 5.4,
+    reasoning: "Talented but recovering from two knee surgeries; worth some caution around Week 1 before trusting a full workload." },
+  { position: "WR", depth: 19, player: "Tee Higgins", team: "CIN", rating: 5.1,
+    reasoning: "Big-bodied red-zone weapon lined up opposite Ja'Marr Chase in one of the league's most productive passing attacks." },
+  { position: "WR", depth: 20, player: "Davante Adams", team: "LAR", rating: 4.8,
+    reasoning: "Veteran receiver still capable of a WR2 role, though offensive situation and target competition are worth monitoring." },
+  { position: "WR", depth: 21, player: "Terry McLaurin", team: "WAS", rating: 4.6,
+    reasoning: "Reliable possession receiver who has produced across multiple different quarterback situations in Washington." },
+  { position: "WR", depth: 22, player: "Ladd McConkey", team: "LAC", rating: 4.3,
+    reasoning: "Slot receiver with a real role in the Chargers' passing game and solid target-share upside." },
+  { position: "WR", depth: 23, player: "Jameson Williams", team: "DET", rating: 4.0,
+    reasoning: "Wide receiver with big-play speed inside a loaded Lions passing offense." },
+  { position: "WR", depth: 24, player: "Jaylen Waddle", team: "DEN", rating: 3.8,
+    reasoning: "Speed-based deep threat whose value fluctuates with Miami's offensive scheme and quarterback play." },
+  { position: "WR", depth: 25, player: "Rome Odunze", team: "CHI", rating: 3.5,
+    reasoning: "Wide receiver who could emerge as Chicago's top target in the passing game if he stays healthy all season." },
+  { position: "TE", depth: 1, player: "Trey McBride", team: "ARI", rating: 9.9,
+    reasoning: "Was the No.1 fantasy TE last season on pure target volume; ranked slightly behind Bowers only because an improved Arizona run game could pull some volume away." },
+  { position: "TE", depth: 2, player: "Brock Bowers", team: "LV", rating: 9.5,
+    reasoning: "Clear TE1 in a tier of his own; projected to lead the position in targets again and finish as the top scorer at tight end in 2026." },
+  { position: "TE", depth: 3, player: "Colston Loveland", team: "CHI", rating: 9.1,
+    reasoning: "Rookie breakout in the second half of 2025 (TE2 over the final 10 weeks, trailing only McBride) - a Year 2 ascension candidate in a loaded Lions offense." },
+  { position: "TE", depth: 4, player: "Tyler Warren", team: "IND", rating: 8.8,
+    reasoning: "Flashed a legitimate TE1 ceiling as a rookie and now absorbs more targets with a receiver departing Indianapolis - upside is tied to QB health." },
+  { position: "TE", depth: 5, player: "Harold Fannin Jr.", team: "CLE", rating: 8.4,
+    reasoning: "Strong rookie season, though added draft investment at the position could cut into his target share this year." },
+  { position: "TE", depth: 6, player: "Kyle Pitts Sr.", team: "ATL", rating: 8.0,
+    reasoning: "Currently going around pick 7.08 (ADP 79.8) across 181 live PPR drafts polled this week - no prior scouting note on file yet, so treat this as a data-only placeholder." },
+  { position: "TE", depth: 7, player: "Sam LaPorta", team: "DET", rating: 7.6,
+    reasoning: "A new offensive coordinator who favors heavy tight end usage gives LaPorta top-five TE upside." },
+  { position: "TE", depth: 8, player: "Travis Kelce", team: "KC", rating: 7.3,
+    reasoning: "Turns 36 this season, but remains a solid, high-floor option in Kansas City's offense as long as Patrick Mahomes stays on the field." },
+  { position: "TE", depth: 9, player: "Tucker Kraft", team: "GB", rating: 6.9,
+    reasoning: "Expected back for Week 1 after last year's ACL tear; a thinner receiving corps in Green Bay could funnel more targets his way." },
+  { position: "TE", depth: 10, player: "Dallas Goedert", team: "PHI", rating: 6.5,
+    reasoning: "Scored double-digit touchdowns last season and remains productive even without A.J. Brown drawing coverage away." },
+  { position: "TE", depth: 11, player: "George Kittle", team: "SF", rating: 6.1,
+    reasoning: "Elite when healthy with an eight-year streak of double-digit fantasy points per game, but turns 32 and is coming off an Achilles issue." },
+  { position: "TE", depth: 12, player: "Jake Ferguson", team: "DAL", rating: 5.8,
+    reasoning: "Consistently near the top of Dallas's target chart, though yardage production has lagged behind his touchdown totals." },
+  { position: "TE", depth: 13, player: "Mark Andrews", team: "BAL", rating: 5.4,
+    reasoning: "Bounce-back candidate after a down 2025 season; still has real chemistry with Lamar Jackson when healthy." },
+  { position: "TE", depth: 14, player: "Isaiah Likely", team: "NYG", rating: 5.0,
+    reasoning: "Gets his first real featured role after a change of scenery; has historically produced well whenever he's actually been targeted." },
+  { position: "TE", depth: 15, player: "Dalton Kincaid", team: "BUF", rating: 4.6,
+    reasoning: "Quality target-share option when available, though injury history is a real concern across a full season." },
+  { position: "TE", depth: 16, player: "Brenton Strange", team: "JAX", rating: 4.3,
+    reasoning: "Could have real streaming upside if injuries open up more opportunity ahead of him on the depth chart." },
+  { position: "TE", depth: 17, player: "Hunter Henry", team: "NE", rating: 3.9,
+    reasoning: "Currently going around pick 13.11 (ADP 155.4) across 48 live PPR drafts polled this week - no prior scouting note on file yet, so treat this as a data-only placeholder." },
+  { position: "TE", depth: 18, player: "T.J. Hockenson", team: "MIN", rating: 3.5,
+    reasoning: "Currently going around pick 14.03 (ADP 158.8) across 32 live PPR drafts polled this week - no prior scouting note on file yet, so treat this as a data-only placeholder." },
+  { position: "FLEX", depth: 1, player: "Luther Burden III", team: "CHI", rating: 9.9,
+    reasoning: "Hype is building around him in Chicago, which comes with some risk of drafting ahead of his actual proven role." },
+  { position: "FLEX", depth: 2, player: "DJ Moore", team: "BUF", rating: 9.4,
+    reasoning: "Currently going around pick 5.09 (ADP 56.8) across 692 live PPR drafts polled this week - no prior scouting note on file yet, so treat this as a data-only placeholder." },
+  { position: "FLEX", depth: 3, player: "Mike Evans", team: "SF", rating: 9.0,
+    reasoning: "Wide receiver projected to reach 1,000 receiving yards for the 12th time in his 13-year career." },
+  { position: "FLEX", depth: 4, player: "Alec Pierce", team: "IND", rating: 8.5,
+    reasoning: "Wide receiver who serves as a deep-threat complementary piece in Indianapolis's passing game." },
+  { position: "FLEX", depth: 5, player: "Courtland Sutton", team: "DEN", rating: 8.1,
+    reasoning: "Wide receiver who has been a consistent, if unspectacular, target in Denver's passing offense." },
+  { position: "FLEX", depth: 6, player: "Tony Pollard", team: "TEN", rating: 7.6,
+    reasoning: "Running back who has been a top-30 fantasy option for four consecutive seasons across different teams." },
+  { position: "FLEX", depth: 7, player: "Marvin Harrison Jr.", team: "ARI", rating: 7.2,
+    reasoning: "Wide receiver still developing chemistry within Arizona's offense entering his second season." },
+  { position: "FLEX", depth: 8, player: "DK Metcalf", team: "PIT", rating: 6.7,
+    reasoning: "Currently going around pick 6.05 (ADP 65.2) across 310 live PPR drafts polled this week - no prior scouting note on file yet, so treat this as a data-only placeholder." },
+  { position: "FLEX", depth: 9, player: "Jadarian Price", team: "SEA", rating: 6.2,
+    reasoning: "Rookie opportunity if the back ahead of him is delayed or limited - a late-round dice roll for bench depth." },
+  { position: "FLEX", depth: 10, player: "Jaylen Warren", team: "PIT", rating: 5.8,
+    reasoning: "Running back who offers change-of-pace value in a crowded Pittsburgh backfield." },
+  { position: "FLEX", depth: 11, player: "Christian Watson", team: "GB", rating: 5.3,
+    reasoning: "Wide receiver with big-play speed whose role fluctuates behind more established Green Bay pass-catchers." },
+  { position: "FLEX", depth: 12, player: "Michael Pittman Jr.", team: "PIT", rating: 4.9,
+    reasoning: "Currently going around pick 6.12 (ADP 71.7) across 358 live PPR drafts polled this week - no prior scouting note on file yet, so treat this as a data-only placeholder." },
+  { position: "FLEX", depth: 13, player: "Rhamondre Stevenson", team: "NE", rating: 4.4,
+    reasoning: "Running back who remains the primary veteran option in New England's backfield." },
+  { position: "FLEX", depth: 14, player: "Rico Dowdle", team: "PIT", rating: 4.0,
+    reasoning: "Currently going around pick 7.02 (ADP 74.4) across 191 live PPR drafts polled this week - no prior scouting note on file yet, so treat this as a data-only placeholder." },
+  { position: "FLEX", depth: 15, player: "Carnell Tate", team: "TEN", rating: 3.5,
+    reasoning: "Currently going around pick 7.02 (ADP 74.4) across 578 live PPR drafts polled this week - no prior scouting note on file yet, so treat this as a data-only placeholder." },
+  { position: "K", depth: 1, player: "Brandon Aubrey", team: "DAL", rating: 9.9,
+    reasoning: "The gold standard at kicker - 88.2% career FG accuracy and the NFL record for made 60+ yard field goals, in a high-scoring Dallas offense." },
+  { position: "K", depth: 2, player: "Jason Myers", team: "SEA", rating: 9.4,
+    reasoning: "Was the top-scoring kicker in the league last season (202 points) playing behind one of the league's best defenses, which shortens fields all year." },
+  { position: "K", depth: 3, player: "Ka'imi Fairbairn", team: "HOU", rating: 9.0,
+    reasoning: "Led the NFL in field goal attempts and makes in 2025 (12.9 PPG); Houston's offense settles for a lot of red-zone field goals, which is great kicker volume." },
+  { position: "K", depth: 4, player: "Jake Bates", team: "DET", rating: 8.5,
+    reasoning: "One of the strongest legs in the league, playing for a high-scoring Lions offense that should provide plenty of scoring chances." },
+  { position: "K", depth: 5, player: "Cameron Dicker", team: "LAC", rating: 8.1,
+    reasoning: "All-time NFL leader in field goal accuracy (93.5%) and has finished top-8 in kicker scoring three straight years." },
+  { position: "K", depth: 6, player: "Harrison Mevis", team: "LAR", rating: 7.6,
+    reasoning: "Made 12-of-13 field goals and all 39 extra points after joining the Rams mid-season - earned real trust down the stretch." },
+  { position: "K", depth: 7, player: "Cairo Santos", team: "CHI", rating: 7.2,
+    reasoning: "Dependable veteran leg, though his field goal accuracy has waned somewhat in recent seasons compared to his earlier career." },
+  { position: "K", depth: 8, player: "Chase McLaughlin", team: "TB", rating: 6.7,
+    reasoning: "Warm-weather kicker advantage plus an offense that should provide plenty of scoring chances." },
+  { position: "K", depth: 9, player: "Eddy Piñeiro", team: "SF", rating: 6.2,
+    reasoning: "Currently going around pick 14.02 (ADP 157.8) across 54 live PPR drafts polled this week - no prior scouting note on file yet, so treat this as a data-only placeholder." },
+  { position: "K", depth: 10, player: "Chris Boswell", team: "PIT", rating: 5.8,
+    reasoning: "Steady veteran leg who continues to rank among the more dependable options at the position." },
+  { position: "K", depth: 11, player: "Cam Little", team: "JAX", rating: 5.3,
+    reasoning: "Holds the NFL record for longest field goal (68 yards) and finished 5th in kicker fantasy scoring last season." },
+  { position: "K", depth: 12, player: "Tyler Loop", team: "BAL", rating: 4.9,
+    reasoning: "Rookie who quietly finished 12th in kicker scoring last season, averaging 8.5 points per game in a productive Baltimore offense." },
+  { position: "K", depth: 13, player: "Will Reichard", team: "MIN", rating: 4.4,
+    reasoning: "Currently going around pick 14.07 (ADP 163.2) across 55 live PPR drafts polled this week - no prior scouting note on file yet, so treat this as a data-only placeholder." },
+  { position: "K", depth: 14, player: "Tyler Bass", team: "BUF", rating: 4.0,
+    reasoning: "Currently going around pick 14.10 (ADP 165.9) across 14 live PPR drafts polled this week - no prior scouting note on file yet, so treat this as a data-only placeholder." },
+  { position: "K", depth: 15, player: "Andy Borregales", team: "NE", rating: 3.5,
+    reasoning: "Rookie who made 27-of-32 field goals last season - a solid debut worth monitoring." },
+  { position: "DST", depth: 1, player: "Denver Broncos", team: "DEN", rating: 9.9,
+    reasoning: "Elite unit on paper, but a tough early-season schedule and some 2025 injury luck that may not repeat both temper the ranking slightly." },
+  { position: "DST", depth: 2, player: "Seattle Seahawks", team: "SEA", rating: 9.3,
+    reasoning: "Was the NFL's highest-scoring DST in 2025, allowing a league-low 17.2 points per game - the defensive talent is still intact." },
+  { position: "DST", depth: 3, player: "Houston Texans", team: "HOU", rating: 8.7,
+    reasoning: "Projected as the No.1 scoring DST after finishing DST2 in 2025; allowed the third-fewest points per game in the league." },
+  { position: "DST", depth: 4, player: "Minnesota Vikings", team: "MIN", rating: 8.2,
+    reasoning: "Fifth-highest scoring DST in 2025, but some injury-luck regression is expected, making them more of a boom-or-bust weekly play." },
+  { position: "DST", depth: 5, player: "Detroit Lions", team: "DET", rating: 7.6,
+    reasoning: "Sleeper option thanks to the easiest schedule in the league through the first five weeks, plus expected positive injury regression on defense." },
+  { position: "DST", depth: 6, player: "Los Angeles Rams", team: "LAR", rating: 7.0,
+    reasoning: "Added sack leader Myles Garrett and improved the secondary with new cornerbacks - a defense trending upward heading into 2026." },
+  { position: "DST", depth: 7, player: "Jacksonville Jaguars", team: "JAX", rating: 6.4,
+    reasoning: "Strong Week 1 matchup and finished second in interceptions in 2025, though overall performance has been inconsistent week to week." },
+  { position: "DST", depth: 8, player: "New England Patriots", team: "NE", rating: 5.8,
+    reasoning: "Allows relatively few points despite a weaker pass rush, though a bottom-tier red zone defense caps the unit's fantasy ceiling somewhat." },
+  { position: "DST", depth: 9, player: "Philadelphia Eagles", team: "PHI", rating: 5.2,
+    reasoning: "Back-to-back DST7 finishes with a top-6 turnover margin since 2024 give them a high floor even with one of the league's toughest overall schedules." },
+  { position: "DST", depth: 10, player: "Los Angeles Chargers", team: "LAC", rating: 4.7,
+    reasoning: "Sleeper option with the best schedule of any DST to start the season - a confident start-with-confidence play in Weeks 1-2." },
+  { position: "DST", depth: 11, player: "Atlanta Falcons", team: "ATL", rating: 4.1,
+    reasoning: "Currently going around pick 13.08 (ADP 152.0) across 66 live PPR drafts polled this week - no prior scouting note on file yet, so treat this as a data-only placeholder." },
+  { position: "DST", depth: 12, player: "Pittsburgh Steelers", team: "PIT", rating: 3.5,
+    reasoning: "Ranked top-4 in early-season projections thanks to a favorable schedule, though the unit's underlying trajectory has been declining." },
+];
+
+const POSITIONS = ["QB", "RB", "WR", "TE", "FLEX", "K", "DST"];
+const POSITION_NAMES = {
+  QB: "Quarterback",
+  RB: "Running Back",
+  WR: "Wide Receiver",
+  TE: "Tight End",
+  FLEX: "Flex (RB/WR/TE)",
+  K: "Kicker",
+  DST: "Defense / Special Teams",
+};
+
+const DRAFTED_KEY = "ff2026_drafted_v1";
+function rowKey(row) { return `${row.position}|${row.depth}|${row.player}`; }
+function loadDrafted() {
+  try { return new Set(JSON.parse(localStorage.getItem(DRAFTED_KEY) || "[]")); }
+  catch (e) { return new Set(); }
+}
+function saveDrafted() {
+  localStorage.setItem(DRAFTED_KEY, JSON.stringify(Array.from(state.drafted)));
+}
+
+const state = {
+  search: "",
+  activePositions: new Set(POSITIONS),
+  sortKey: "position",
+  sortDir: "asc",
+  drafted: loadDrafted(),
+  hideDrafted: false,
+};
+
+const posFiltersEl = document.getElementById("posFilters");
+POSITIONS.forEach(pos => {
+  const chip = document.createElement("button");
+  chip.type = "button";
+  chip.className = "pos-chip active";
+  chip.textContent = pos;
+  chip.dataset.pos = pos;
+  chip.addEventListener("click", () => {
+    if (state.activePositions.has(pos)) {
+      state.activePositions.delete(pos);
+      chip.classList.remove("active");
+    } else {
+      state.activePositions.add(pos);
+      chip.classList.add("active");
+    }
+    render();
+  });
+  posFiltersEl.appendChild(chip);
+});
+
+document.getElementById("searchBox").addEventListener("input", (e) => {
+  state.search = e.target.value.trim().toLowerCase();
+  render();
+});
+
+document.getElementById("sortSelect").addEventListener("change", (e) => {
+  const [key, dir] = e.target.value.split("-");
+  state.sortKey = key === "pos" ? "position" : key;
+  state.sortDir = dir;
+  render();
+});
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  state.search = "";
+  state.activePositions = new Set(POSITIONS);
+  state.sortKey = "position";
+  state.sortDir = "asc";
+  document.getElementById("searchBox").value = "";
+  document.getElementById("sortSelect").value = "pos-asc";
+  posFiltersEl.querySelectorAll(".pos-chip").forEach(c => c.classList.add("active"));
+  render();
+});
+
+document.getElementById("hideDraftedBox").addEventListener("change", (e) => {
+  state.hideDrafted = e.target.checked;
+  render();
+});
+
+document.getElementById("clearDraftedBtn").addEventListener("click", () => {
+  if (state.drafted.size === 0) return;
+  if (confirm("Clear all drafted marks? This can't be undone.")) {
+    state.drafted.clear();
+    saveDrafted();
+    render();
+  }
+});
+
+document.querySelectorAll("thead th[data-key]").forEach(th => {
+  th.addEventListener("click", () => {
+    const key = th.dataset.key;
+    if (state.sortKey === key) {
+      state.sortDir = state.sortDir === "asc" ? "desc" : "asc";
+    } else {
+      state.sortKey = key;
+      state.sortDir = key === "rating" ? "desc" : "asc";
+    }
+    syncSortSelect();
+    render();
+  });
+});
+
+function syncSortSelect() {
+  const sel = document.getElementById("sortSelect");
+  const map = {
+    "position-asc": "pos-asc",
+    "rating-desc": "rating-desc",
+    "rating-asc": "rating-asc",
+    "player-asc": "player-asc",
+    "depth-asc": "depth-asc",
+  };
+  const found = map[`${state.sortKey}-${state.sortDir}`];
+  if (found) sel.value = found;
+}
+
+const posOrderIndex = Object.fromEntries(POSITIONS.map((p, i) => [p, i]));
+
+function getFiltered() {
+  return DATA.filter(row => {
+    if (!state.activePositions.has(row.position)) return false;
+    if (state.hideDrafted && state.drafted.has(rowKey(row))) return false;
+    if (!state.search) return true;
+    const haystack = `${row.player} ${row.team} ${row.position} ${row.reasoning}`.toLowerCase();
+    return haystack.includes(state.search);
+  });
+}
+
+function getSorted(rows) {
+  const dir = state.sortDir === "asc" ? 1 : -1;
+  const key = state.sortKey;
+  return rows.slice().sort((a, b) => {
+    let av, bv;
+    if (key === "position") {
+      av = posOrderIndex[a.position]; bv = posOrderIndex[b.position];
+      if (av === bv) return (a.depth - b.depth) * dir;
+    } else if (key === "player") {
+      av = a.player.toLowerCase(); bv = b.player.toLowerCase();
+    } else {
+      av = a[key]; bv = b[key];
+    }
+    if (av < bv) return -1 * dir;
+    if (av > bv) return 1 * dir;
+    return 0;
+  });
+}
+
+function ordinal(n) {
+  return ["", "1st", "2nd", "3rd", "4th"][n] || `${n}th`;
+}
+
+function render() {
+  const filtered = getSorted(getFiltered());
+  const tbody = document.getElementById("tableBody");
+  tbody.innerHTML = "";
+
+  document.querySelectorAll("thead th[data-key]").forEach(th => {
+    th.classList.toggle("sorted", th.dataset.key === state.sortKey);
+  });
+
+  filtered.forEach(row => {
+    const tr = document.createElement("tr");
+    const key = rowKey(row);
+    const isDrafted = state.drafted.has(key);
+    if (isDrafted) tr.classList.add("drafted-row");
+    const pct = Math.max(0, Math.min(100, (row.rating / 10) * 100));
+    tr.innerHTML = `
+      <td class="drafted-col"><input type="checkbox" class="drafted-check" ${isDrafted ? "checked" : ""} aria-label="Mark ${row.player} as drafted"></td>
+      <td><span class="pos-tag pos-${row.position}" title="${POSITION_NAMES[row.position]}">${row.position}</span></td>
+      <td class="depth">${ordinal(row.depth)} choice</td>
+      <td class="player">${row.player}${row.team ? ` <span style="color:var(--text-muted);font-weight:400;">(${row.team})</span>` : ""}</td>
+      <td><span class="rating">${row.rating.toFixed(1)}<span class="rating-bar"><span style="width:${pct}%"></span></span></span></td>
+      <td class="reasoning">${row.reasoning}</td>
+    `;
+    tr.querySelector(".drafted-check").addEventListener("change", (e) => {
+      if (e.target.checked) state.drafted.add(key);
+      else state.drafted.delete(key);
+      saveDrafted();
+      render();
+    });
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById("emptyState").style.display = filtered.length ? "none" : "block";
+  const draftedCount = DATA.filter(r => state.drafted.has(rowKey(r))).length;
+  document.getElementById("resultCount").textContent =
+    `${filtered.length} of ${DATA.length} players` + (draftedCount ? ` · ${draftedCount} marked drafted` : "");
+}
+
+render();
+</script>
+</body>
+</html>
