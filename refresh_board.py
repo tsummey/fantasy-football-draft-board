@@ -21,10 +21,15 @@ What it does:
   5. Rewrites the DATA array and the header's "Updated ..." badge in
      index.html in place. Nothing else in the file (legend, strategies,
      drafted-marking feature, styling) is touched.
+  6. If index.html actually changed, commits and pushes it to the GitHub
+     repo (origin/master) so the published GitHub Pages site stays current
+     too. Skipped quietly if there's nothing to commit, or if git/network
+     fails - a sync hiccup never breaks the local refresh.
 """
 
 import json
 import re
+import subprocess
 import sys
 from datetime import date, datetime
 from pathlib import Path
@@ -32,7 +37,9 @@ from pathlib import Path
 import requests
 
 HTML_PATH = Path(__file__).parent / "index.html"
+REPO_DIR = HTML_PATH.parent
 API_URL = "https://fantasyfootballcalculator.com/api/v1/adp/ppr?teams=12&year=2026"
+GIT_EXE = "C:\\Program Files\\Git\\cmd\\git.exe"
 
 DEPTH = {"QB": 18, "RB": 25, "WR": 25, "TE": 18, "FLEX": 15, "K": 15, "DST": 12}
 POSITION_MAP = {"QB": "QB", "RB": "RB", "WR": "WR", "TE": "TE", "PK": "K", "DEF": "DST"}
@@ -174,6 +181,38 @@ def format_data_js(rows):
     return "\n".join(lines)
 
 
+def run_git(*args):
+    return subprocess.run(
+        [GIT_EXE, *args], cwd=REPO_DIR, capture_output=True, text=True
+    )
+
+
+def git_sync(commit_message):
+    """Commit and push index.html if it changed. Never raises - logs and
+    returns instead, so a git/network hiccup never breaks the local refresh."""
+    diff = run_git("diff", "--quiet", "--", "index.html")
+    if diff.returncode == 0:
+        print("No change to index.html - skipping git commit/push.")
+        return
+
+    add = run_git("add", "index.html")
+    if add.returncode != 0:
+        print(f"git add failed: {add.stderr.strip()}")
+        return
+
+    commit = run_git("commit", "-m", commit_message)
+    if commit.returncode != 0:
+        print(f"git commit failed: {commit.stderr.strip()}")
+        return
+
+    push = run_git("push")
+    if push.returncode != 0:
+        print(f"git push failed: {push.stderr.strip()}")
+        return
+
+    print("Pushed refreshed board to GitHub.")
+
+
 def main():
     if not HTML_PATH.exists():
         print(f"ERROR: {HTML_PATH} not found", file=sys.stderr)
@@ -205,6 +244,8 @@ def main():
     HTML_PATH.write_text(html_text, encoding="utf-8")
     print(f"[{datetime.now().isoformat(timespec='seconds')}] Refreshed {len(rows)} rows "
           f"from {meta['total_drafts']} live drafts ({meta['start_date']} to {meta['end_date']}).")
+
+    git_sync(f"Refresh live ADP data ({date.today().isoformat()})")
 
 
 if __name__ == "__main__":
